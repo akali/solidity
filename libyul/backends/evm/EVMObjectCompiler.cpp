@@ -30,6 +30,30 @@
 using namespace solidity::yul;
 using namespace std;
 
+namespace
+{
+class AreFunctionNamesUnique: ASTWalker
+{
+public:
+	static bool check(Block& _block)
+	{
+		AreFunctionNamesUnique instance;
+		instance(_block);
+		return instance.m_unique;
+	}
+private:
+	using ASTWalker::operator();
+	void operator()(FunctionDefinition const& _functionDefinition) override
+	{
+		ASTWalker::operator()(_functionDefinition);
+		if (!m_functionNames.insert(_functionDefinition.name).second)
+			m_unique = false;
+	}
+	bool m_unique = true;
+	std::set<YulString> m_functionNames;
+};
+}
+
 void EVMObjectCompiler::compile(Object& _object, AbstractAssembly& _assembly, EVMDialect const& _dialect, bool _optimize)
 {
 	EVMObjectCompiler compiler(_assembly, _dialect);
@@ -62,6 +86,10 @@ void EVMObjectCompiler::run(Object& _object, bool _optimize)
 
 	yulAssert(_object.analysisInfo, "No analysis info.");
 	yulAssert(_object.code, "No code.");
+
+	// We cannot use named labels if the function names are not unique.
+	bool useNamedLabelsForFunctions = AreFunctionNamesUnique::check(*_object.code);
+
 	// We do not catch and re-throw the stack too deep exception here because it is a YulException,
 	// which should be native to this part of the code.
 	CodeTransform transform{
@@ -72,7 +100,7 @@ void EVMObjectCompiler::run(Object& _object, bool _optimize)
 		context,
 		_optimize,
 		{},
-		true /* _useNamedLabelsForFunctions */
+		useNamedLabelsForFunctions
 	};
 	transform(*_object.code);
 	if (!transform.stackErrors().empty())

@@ -1,0 +1,88 @@
+
+======= yul_function_name_clashes/input.yul (EVM) =======
+
+Pretty printed source:
+object "object" {
+    code {
+        let a
+        let b
+        {
+            function z() -> y
+            { y := calldataload(0) }
+            a := z()
+        }
+        {
+            function z() -> y
+            { y := calldataload(0x20) }
+            b := z()
+        }
+        sstore(a, b)
+    }
+}
+
+
+Binary representation:
+600080600f565b60008035905090565b60156006565b91506025565b6000602035905090565b602b601b565b90508082555050
+
+Text representation:
+    /* "yul_function_name_clashes/input.yul":37:42   */
+  0x00
+    /* "yul_function_name_clashes/input.yul":51:56   */
+  dup1
+    /* "yul_function_name_clashes/input.yul":79:133   */
+  jump(tag_2)
+tag_1:
+    /* "yul_function_name_clashes/input.yul":95:96   */
+  0x00
+    /* "yul_function_name_clashes/input.yul":129:130   */
+  dup1
+    /* "yul_function_name_clashes/input.yul":116:131   */
+  calldataload
+    /* "yul_function_name_clashes/input.yul":111:131   */
+  swap1
+  pop
+    /* "yul_function_name_clashes/input.yul":79:133   */
+  swap1
+  jump	// out
+tag_2:
+    /* "yul_function_name_clashes/input.yul":151:154   */
+  tag_4
+  tag_1
+  jump	// in
+tag_4:
+    /* "yul_function_name_clashes/input.yul":146:154   */
+  swap2
+  pop
+    /* "yul_function_name_clashes/input.yul":187:244   */
+  jump(tag_6)
+tag_5:
+    /* "yul_function_name_clashes/input.yul":203:204   */
+  0x00
+    /* "yul_function_name_clashes/input.yul":237:241   */
+  0x20
+    /* "yul_function_name_clashes/input.yul":224:242   */
+  calldataload
+    /* "yul_function_name_clashes/input.yul":219:242   */
+  swap1
+  pop
+    /* "yul_function_name_clashes/input.yul":187:244   */
+  swap1
+  jump	// out
+tag_6:
+    /* "yul_function_name_clashes/input.yul":262:265   */
+  tag_8
+  tag_5
+  jump	// in
+tag_8:
+    /* "yul_function_name_clashes/input.yul":257:265   */
+  swap1
+  pop
+    /* "yul_function_name_clashes/input.yul":294:295   */
+  dup1
+    /* "yul_function_name_clashes/input.yul":291:292   */
+  dup3
+    /* "yul_function_name_clashes/input.yul":284:296   */
+  sstore
+    /* "yul_function_name_clashes/input.yul":27:302   */
+  pop
+  pop
